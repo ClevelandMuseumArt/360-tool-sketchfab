@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>360 tool</title>
+
+    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.5.0.js"></script>
+
+    <style type="text/css">
+        .fab_frame iframe {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            width: 70%;
+            height: 100%;
+        }
+        .dashboard {
+            position: absolute;
+            z-index: 2;
+            top: 0;
+            right: 0;
+            width: 30%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="fab_frame">
+    <iframe src="" id="api-frame" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen="true"></iframe>
+</div>
+<div class="dashboard" id="dashboard">
+    <button id="screenshot">Capture</button>
+    <button id="rotate">Spin</button>
+</div>
+
+<script type="text/javascript">
+    var fabview = document.getElementById( 'api-frame' );
+    var uid = '14bfd106baf14d62aebf6eafbe25b3c3';
+
+    var client = new Sketchfab( '1.5.0', fabview );
+
+    var onSuccess = function( api ) {
+        api.start();
+
+        document.getElementById( 'screenshot' ).addEventListener( 'click', function() {
+            api.getScreenShot( 320, 180, 'image/jpeg', function( err, result ) {
+                var anchor = document.createElement( 'a' );
+                anchor.href = result;
+                anchor.download = 'screenshot.jpeg';
+                anchor.innerHTML = '<img width="100" height="100" src=' + result + '>download';
+                document.getElementById( 'dashboard' ).appendChild(anchor);
+                console.log( 'Screenshot acquired' );
+            });
+        });
+
+        function turntable( initialCamera, frameIndex ) {
+            var increment = ( 2 * Math.PI ) / 300;
+            var angle = increment * ( frameIndex + 1 );
+        }
+
+        document.getElementById( 'rotate' ).addEventListener( 'click', function() {
+            //api.getCameraLookAt( )
+        });
+
+        api.addEventListener( 'viewerready', function() {
+            console.log( 'Viewer is ready' );
+
+        } );
+    }
+
+    client.init( uid, {
+        success: onSuccess,
+        error: function onError() {
+            console.log( 'Viewer error' );
+        },
+        autostart: 1,
+        annotations_visible: 0,
+        camera: 0,
+        preload: 1,
+        double_click: 0,
+        ui_fullscreen: 0,
+        ui_stop: 0,
+        ui_help: 0,
+        ui_settings: 0,
+        ui_inspector: 0,
+        ui_vr: 0,
+        ui_annotations: 0,
+        ui_animations: 0,
+        ui_infos: 0
+    } );
+
+</script>
+</body>
+</html>
