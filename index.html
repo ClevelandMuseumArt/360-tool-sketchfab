@@ -46,15 +46,16 @@
     <iframe src="" id="api-frame" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen="true"></iframe>
 </div>
 <div class="dashboard" id="dashboard">
-    <button id="screenshot">Capture</button>
-    <button id="rotate">Spin</button>
+    <button id="screenshot">Preview snapshot</button>
+    <button id="spin">Spin</button>
+    <button id="record">Capture</button>
 </div>
 
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
-    // var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup
-    var uid = '31a9a4ae69834c42a4869d0610f32515'; // dragon headrest
+    var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup
+    // var uid = '31a9a4ae69834c42a4869d0610f32515'; // dragon headrest
     var client = new Sketchfab( '1.5.0', fabview );
 
     // screengrab takes a screenshot of the specified resolution and saves to specified filename
@@ -98,17 +99,35 @@
         api.start();
 
         document.getElementById( 'screenshot' ).addEventListener( 'click', function() {
-            screengrab( api, 'screenshot_1.png' );
+            api.getScreenShot( 100, 100, 'image/png', function( err, result ) {
+                var anchor = document.createElement( 'a' );
+                anchor.href = result;
+                anchor.download = 'screenshot.png';
+                anchor.innerHTML = '<img width="100" height="100" src=' + result + ' />';
+                document.getElementById( 'dashboard' ).appendChild( anchor );
+            });
         });
 
-        document.getElementById( 'rotate' ).addEventListener( 'click', function() {
+        document.getElementById( 'spin' ).addEventListener( 'click', function() {
             api.getCameraLookAt( function( err, camera ) {
                 var total_frames = 20;
                 var initial_camera = camera;
                 for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
                     setTimeout( function() {
                         capture( api, initial_camera, frame_index, total_frames );
-                        setTimeout ( function() {
+                    }, frame_index * 50 );
+                }
+            });
+        });
+
+        document.getElementById( 'record' ).addEventListener( 'click', function() {
+            api.getCameraLookAt( function( err, camera ) {
+                var total_frames = 20;
+                var initial_camera = camera;
+                for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
+                    setTimeout( function() {
+                        capture( api, initial_camera, frame_index, total_frames );
+                        setTimeout( function() {
                             screengrab( api, 'screenshot_' + frame_index + '.png', 500, 500 );
                         }, 10 );
                     }, frame_index * 500 );
