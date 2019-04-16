@@ -28,7 +28,7 @@
             z-index: 1;
             top: 0;
             right: 0;
-            width: 30%;
+            width: 25%;
             height: 100%;
         }
     </style>
@@ -50,27 +50,31 @@
     <button id="rotate">Spin</button>
 </div>
 
+<script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
-    var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup
+    // var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup
+    var uid = '31a9a4ae69834c42a4869d0610f32515'; // dragon headrest
     var client = new Sketchfab( '1.5.0', fabview );
 
-    // screengrab takes a screenshot of the specified resolution
-    function screengrab( sketchfab_api, width = 1920, height = 1080 ) {
+    // screengrab takes a screenshot of the specified resolution and saves to specified filename
+    function screengrab( sketchfab_api, filename, width = 1920, height = 1080 ) {
         sketchfab_api.getScreenShot( width, height, 'image/png', function( err, result ) {
-            var anchor = document.createElement( 'a' );
-            anchor.href = result;
-            anchor.download = 'screenshot.png';
-            anchor.innerHTML = '<img width="100" height="100" src=' + result + '>download';
-            document.getElementById( 'dashboard' ).appendChild(anchor);
+            var img_data = atob( result.split( ',' )[ 1 ]);
+            var buffer = new ArrayBuffer( img_data.length );
+            var view = new Uint8Array( buffer );
+            for ( var i = 0; i < img_data.length; i++ ) {
+                view[ i ] = img_data.charCodeAt( i ) & 0xff;
+            }
+            var blob = new Blob( [ buffer ], { type: 'image/png' });
 
-            console.log( 'Screenshot acquired' );
+            saveAs( blob, filename );
         });
     }
 
     // turntable returns a camera object for a desired position around the model
-    function turntable( initial_camera, frame_index, total = 300.0 ) {
-        var increment = ( 2 * Math.PI ) / total;
+    function turntable( initial_camera, frame_index, total_frames ) {
+        var increment = ( 2 * Math.PI ) / total_frames;
         var angle = increment * ( frame_index + 1 );
         var distance = Math.sqrt(
             Math.pow( initial_camera.target[0] - initial_camera.position[0], 2 ) +
@@ -85,31 +89,29 @@
     }
 
     // capture sets the camera to the location specified by turntable, then calls screengrab
-    function capture( sketchfab_api, initial_camera, frame_index ) {
-        var new_camera = turntable( initial_camera, frame_index );
+    function capture( sketchfab_api, initial_camera, frame_index, total_frames ) {
+        var new_camera = turntable( initial_camera, frame_index, total_frames );
         sketchfab_api.lookat( new_camera.position, new_camera.target, 0 );
-
-        // need to wait for new camera settings
-        // setTimeout( function() {
-        //     screengrab( sketchfab_api );
-        // }, 10 );
     }
 
     var onSuccess = function( api ) {
         api.start();
 
         document.getElementById( 'screenshot' ).addEventListener( 'click', function() {
-            screengrab( api );
+            screengrab( api, 'screenshot_1.png' );
         });
 
         document.getElementById( 'rotate' ).addEventListener( 'click', function() {
             api.getCameraLookAt( function( err, camera ) {
+                var total_frames = 20;
                 var initial_camera = camera;
-                for ( let frame_index = 0; frame_index < 300; frame_index++ ) {
+                for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
                     setTimeout( function() {
-                        console.log( frame_index );
-                        capture( api, initial_camera, frame_index );
-                    }, frame_index * 50 );
+                        capture( api, initial_camera, frame_index, total_frames );
+                        setTimeout ( function() {
+                            screengrab( api, 'screenshot_' + frame_index + '.png', 500, 500 );
+                        }, 10 );
+                    }, frame_index * 500 );
                 }
             });
         });
