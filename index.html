@@ -51,6 +51,9 @@
     <button id="record">Capture</button>
 </div>
 
+<!-- library for compressing with GZip
+<script type="text/javascript" src="js/JSZip.js"></script>
+-->
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
@@ -110,12 +113,16 @@
 
         document.getElementById( 'spin' ).addEventListener( 'click', function() {
             api.getCameraLookAt( function( err, camera ) {
-                var total_frames = 20;
+                var total_frames = 300;
                 var initial_camera = camera;
                 for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
                     setTimeout( function() {
+                        console.log( frame_index );
                         capture( api, initial_camera, frame_index, total_frames );
-                    }, frame_index * 50 );
+                        if ( frame_index === ( total_frames - 1 )) {
+                            console.log( 'finished' );
+                        }
+                    }, frame_index * 100 );
                 }
             });
         });
