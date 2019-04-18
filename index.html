@@ -60,18 +60,18 @@
     var client = new Sketchfab( '1.5.0', fabview );
 
     // screengrab takes a screenshot of the specified resolution and returns a URL to the image
-    function screengrab( sketchfab_api, width, height, callback ) {
-        sketchfab_api.getScreenShot( width, height, 'image/png', function( err, result ) {
-            var img_data = atob( result.split( ',' )[ 1 ]);
-            var buffer = new ArrayBuffer( img_data.length );
-            var view = new Uint8Array( buffer );
-            for ( var i = 0; i < img_data.length; i++ ) {
-                view[ i ] = img_data.charCodeAt( i ) & 0xff;
-            }
-            var blob = new Blob( [ buffer ], { type: 'image/png' });
-            callback( blob )
-            // var img_url = URL.createObjectURL( blob );
-            // callback( img_url );
+    function screengrab( sketchfab_api, width, height ) {
+        return new Promise(( resolve, reject ) => {
+            sketchfab_api.getScreenShot( width, height, 'image/png', function( err, result ) {
+                var img_data = atob( result.split( ',' )[ 1 ]);
+                var buffer = new ArrayBuffer( img_data.length );
+                var view = new Uint8Array( buffer );
+                for ( var i = 0; i < img_data.length; i++ ) {
+                    view[ i ] = img_data.charCodeAt( i ) & 0xff;
+                }
+                var blob = new Blob( [ buffer ], { type: 'image/png' });
+                resolve( blob );
+            });
         });
     }
 
@@ -91,7 +91,7 @@
         };
     }
 
-    // capture sets the camera to the location specified by turntable, then calls screengrab
+    // capture sets the camera to the location specified by turntable
     function capture( sketchfab_api, initial_camera, frame_index, total_frames ) {
         var new_camera = turntable( initial_camera, frame_index, total_frames );
         sketchfab_api.lookat( new_camera.position, new_camera.target, 0 );
@@ -101,11 +101,15 @@
         api.start();
 
         document.getElementById( 'screenshot' ).addEventListener( 'click', function() {
-            screengrab( api, 120, 120, function( blob ) {
-                var thumbnail = document.createElement( 'img' );
-                thumbnail.src = URL.createObjectURL( blob );
-                document.getElementById( 'dashboard' ).appendChild( thumbnail );
-            });
+            let preview = screengrab( api, 120, 120 );
+
+            preview.then(
+                function( blob ) {
+                    var thumbnail = document.createElement( 'img' );
+                    thumbnail.src = URL.createObjectURL( blob );
+                    document.getElementById( 'dashboard' ).appendChild( thumbnail );
+                }
+            );
         });
 
         document.getElementById( 'spin' ).addEventListener( 'click', function() {
@@ -122,7 +126,7 @@
 
         document.getElementById( 'record' ).addEventListener( 'click', function() {
             api.getCameraLookAt( function( err, camera ) {
-                var total_frames = 20;
+                var total_frames = 5;
                 var initial_camera = camera;
                 var zip = new JSZip();
 
@@ -130,16 +134,19 @@
                     setTimeout( function() {
                         capture( api, initial_camera, frame_index, total_frames );
                         setTimeout( function() {
-                            screengrab( api, 1920, 1080, function( blob ) {
-                                zip.file( 'screenshot_' + frame_index + '.png', blob);
-                                if ( frame_index === ( total_frames - 1 )) {
-                                    zip.generateAsync({ type:'blob' }).then( function( blob ) {
-                                        saveAs( blob, 'test.zip' );
-                                    });
+                            let preview = screengrab( api, 300, 300 );
+                            preview.then(
+                                function( blob ) {
+                                    zip.file( 'screenshot_' + frame_index + '.png', blob );
+                                    if ( frame_index === ( total_frames - 1 )) {
+                                        zip.generateAsync({ type:'blob'}).then( function( zip_blob ) {
+                                            saveAs( zip_blob, 'test.zip' );
+                                        });
+                                    }
                                 }
-                            });
-                        }, 250 );
-                    }, frame_index * 500 );
+                            );
+                        }, 100);
+                    }, frame_index * 300 );
                 }
             });
         });
