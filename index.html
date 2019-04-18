@@ -51,9 +51,7 @@
     <button id="record">Capture</button>
 </div>
 
-<!-- library for compressing with GZip
-<script type="text/javascript" src="js/JSZip.js"></script>
--->
+<script type="text/javascript" src="js/jszip.min.js"></script>
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
@@ -61,8 +59,8 @@
     // var uid = '31a9a4ae69834c42a4869d0610f32515'; // dragon headrest
     var client = new Sketchfab( '1.5.0', fabview );
 
-    // screengrab takes a screenshot of the specified resolution and saves to specified filename
-    function screengrab( sketchfab_api, filename, width = 1920, height = 1080 ) {
+    // screengrab takes a screenshot of the specified resolution and returns a URL to the image
+    function screengrab( sketchfab_api, width, height, callback ) {
         sketchfab_api.getScreenShot( width, height, 'image/png', function( err, result ) {
             var img_data = atob( result.split( ',' )[ 1 ]);
             var buffer = new ArrayBuffer( img_data.length );
@@ -71,8 +69,9 @@
                 view[ i ] = img_data.charCodeAt( i ) & 0xff;
             }
             var blob = new Blob( [ buffer ], { type: 'image/png' });
-
-            saveAs( blob, filename );
+            callback( blob )
+            // var img_url = URL.createObjectURL( blob );
+            // callback( img_url );
         });
     }
 
@@ -102,12 +101,10 @@
         api.start();
 
         document.getElementById( 'screenshot' ).addEventListener( 'click', function() {
-            api.getScreenShot( 300, 300, 'image/png', function( err, result ) {
-                var anchor = document.createElement( 'a' );
-                anchor.href = result;
-                anchor.target = '_blank';
-                anchor.innerHTML = '<img width="120" height="120" src=' + result + ' />';
-                document.getElementById( 'dashboard' ).appendChild( anchor );
+            screengrab( api, 120, 120, function( blob ) {
+                var thumbnail = document.createElement( 'img' );
+                thumbnail.src = URL.createObjectURL( blob );
+                document.getElementById( 'dashboard' ).appendChild( thumbnail );
             });
         });
 
@@ -117,11 +114,7 @@
                 var initial_camera = camera;
                 for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
                     setTimeout( function() {
-                        console.log( frame_index );
                         capture( api, initial_camera, frame_index, total_frames );
-                        if ( frame_index === ( total_frames - 1 )) {
-                            console.log( 'finished' );
-                        }
                     }, frame_index * 100 );
                 }
             });
@@ -131,20 +124,25 @@
             api.getCameraLookAt( function( err, camera ) {
                 var total_frames = 20;
                 var initial_camera = camera;
+                var zip = new JSZip();
+
                 for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
                     setTimeout( function() {
                         capture( api, initial_camera, frame_index, total_frames );
                         setTimeout( function() {
-                            screengrab( api, 'screenshot_' + frame_index + '.png', 500, 500 );
-                        }, 10 );
+                            screengrab( api, 1920, 1080, function( blob ) {
+                                zip.file( 'screenshot_' + frame_index + '.png', blob);
+                                if ( frame_index === ( total_frames - 1 )) {
+                                    zip.generateAsync({ type:'blob' }).then( function( blob ) {
+                                        saveAs( blob, 'test.zip' );
+                                    });
+                                }
+                            });
+                        }, 250 );
                     }, frame_index * 500 );
                 }
             });
         });
-
-        api.addEventListener( 'viewerready', function() {
-            console.log( 'Viewer is ready' );
-        } );
     }
 
     client.init( uid, {
@@ -166,7 +164,7 @@
         ui_annotations: 0,
         ui_animations: 0,
         ui_infos: 0,
-        transparent: 1 // set transparent background
+        transparent: 0 // set transparent background
     } );
 
 </script>
