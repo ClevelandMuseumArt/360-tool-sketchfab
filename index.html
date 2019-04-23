@@ -47,7 +47,7 @@
     // CAREFUL --- img_warehouse is a global variable for storing blobs; only reference in capture()
     var img_warehouse = [];
 
-    function capture( sketchfab_api, initial_camera, frame_index, total_frames ) {
+    function capture( sketchfab_api, img_type, initial_camera, frame_index, total_frames ) {
         if ( frame_index === total_frames ) {
             var zip = new JSZip();
 
@@ -72,12 +72,12 @@
             console.log( 'called lookat at frame ' + frame_index );
         }).then( function() {
             console.log( 'called screengrab at frame ' + frame_index );
-            return screengrab( sketchfab_api, 'image/png', 1920, 1080 );
+            return screengrab( sketchfab_api, img_type, 1920, 1080 );
         }).then( function ( img_blob ) {
             img_warehouse.push( img_blob );
             console.log( 'called push at frame ' + frame_index );
         }).then( function() {
-            capture( sketchfab_api, initial_camera, frame_index + 1, total_frames );
+            capture( sketchfab_api, img_type, initial_camera, frame_index + 1, total_frames );
         });
     }
 
@@ -158,7 +158,10 @@
 
         document.getElementById( 'record' ).addEventListener( 'click', function() {
             api.getCameraLookAt( function( err, camera ) {
-                capture( api, camera, 0, 300 );
+                let cam_promise = turntable( camera, 0, 1 );
+                cam_promise.then( function( new_camera ) {
+                    capture( api, 'image/png', new_camera, 0, 300 );
+                });
             });
         });
     }
