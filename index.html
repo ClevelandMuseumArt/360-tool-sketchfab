@@ -33,8 +33,27 @@
 <div class="dashboard" id="dashboard">
     <button id="screenshot">Preview snapshot</button>
     <button id="spin">Spin</button>
+
+    <div class="field">
+        <label class="field-label">Resolution</label>
+        <div class="field-control">
+            <input type="text" size="4" value="1920" placeholder="width" name="width" title="Width. Max: 1920" pattern="[0-1]{2-4}" required> x
+            <input type="text" size="4" value="1080" placeholder="height" name="height" title="Height. Max: 1920" pattern="[0-1]{2-4}" required>
+            <small>(1920 max)</small>
+        </div>
+    </div>
+    <div class="field">
+        <label class="field-label">Filetype</label>
+        <div class="field-control">
+            <select id="mimetype-enum">
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPG</option>
+            </select>
+        </div>
+    </div>
     <button id="record">Capture</button>
-</div>
+    <button id="sandbox">Sandbox</button>
+
 
 <script type="text/javascript" src="js/jszip.min.js"></script>
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
@@ -43,6 +62,11 @@
     var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup
     // var uid = '31a9a4ae69834c42a4869d0610f32515'; // dragon headrest
     var client = new Sketchfab( '1.5.0', fabview );
+
+    var sandbox = document.getElementById( 'sandbox' ).addEventListener( 'click', ui_sandbox );
+    function ui_sandbox() {
+        return; 
+    }
 
     // CAREFUL --- img_warehouse is a global variable for storing blobs; only reference in capture()
     var img_warehouse = [];
@@ -157,6 +181,7 @@
         });
 
         document.getElementById( 'record' ).addEventListener( 'click', function() {
+            // get screenshot parameters: resolution, frame count, total frames, mimetype
             api.getCameraLookAt( function( err, camera ) {
                 let cam_promise = turntable( camera, 0, 1 );
                 cam_promise.then( function( new_camera ) {
