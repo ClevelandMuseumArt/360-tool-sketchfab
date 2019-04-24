@@ -160,7 +160,12 @@
             api.getCameraLookAt( function( err, camera ) {
                 let cam_promise = turntable( camera, 0, 1 );
                 cam_promise.then( function( new_camera ) {
-                    capture( api, 'image/png', new_camera, 0, 300 );
+                    camera = new_camera
+                    return lookat_wrapper( api, camera.position, camera.target, 0.0 );
+                }).then( function() {
+                    setTimeout( function() {
+                        capture( api, 'image/png', camera, 0, 100 );
+                    }, 100 );
                 });
             });
         });
