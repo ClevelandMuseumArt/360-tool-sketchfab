@@ -65,7 +65,7 @@
 
     var sandbox = document.getElementById( 'sandbox' ).addEventListener( 'click', ui_sandbox );
     function ui_sandbox() {
-        return; 
+        return;
     }
 
     // CAREFUL --- img_warehouse is a global variable for storing blobs; only reference in capture()
@@ -189,7 +189,7 @@
                     return lookat_wrapper( api, camera.position, camera.target, 0.0 );
                 }).then( function() {
                     setTimeout( function() {
-                        capture( api, 'image/png', camera, 0, 100 );
+                        capture( api, 'image/png', camera, 0, 1047 );
                     }, 100 );
                 });
             });
