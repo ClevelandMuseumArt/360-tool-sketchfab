@@ -33,15 +33,9 @@
 <div class="dashboard" id="dashboard">
     <button id="screenshot">Preview snapshot</button>
     <button id="spin">Spin</button>
+    <button id="record">Capture</button>
+    <button id="sandbox">Sandbox</button>
 
-    <div class="field">
-        <label class="field-label">Resolution</label>
-        <div class="field-control">
-            <input type="text" size="4" value="1920" placeholder="width" name="width" title="Width. Max: 1920" required> x
-            <input type="text" size="4" value="1080" placeholder="height" name="height" title="Height. Max: 1920" required>
-            <small>(1920 max)</small>
-        </div>
-    </div>
     <div class="field">
         <label class="field-label">Filetype</label>
         <div class="field-control">
@@ -51,8 +45,6 @@
             </select>
         </div>
     </div>
-    <button id="record">Capture</button>
-    <button id="sandbox">Sandbox</button>
 </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
@@ -61,9 +53,12 @@
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
     // var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup (1944.485)
-    var uid = '31a9a4ae69834c42a4869d0610f32515'; // lion headrest (2017.15)
+    // var uid = '31a9a4ae69834c42a4869d0610f32515'; // lion headrest (2017.15)
     // var acc_id = '1944.485'; // Wade cup
-    var acc_id = '2017.15'; // lion headrest
+    // var acc_id = '2017.15'; // lion headrest
+
+    var uid = '5a452eaf4d5d44c1a7a23f7f53d81284'; // mother-and-appendChild
+    var acc_id = '1955.166'
     var client = new Sketchfab( '1.5.0', fabview );
 
     var onSuccess = function( api ) {
@@ -105,12 +100,15 @@
                     let offset = Math.atan2( initial_camera.position[ 1 ] - new_camera.target[ 1 ], initial_camera.position[ 0 ] - new_camera.target[ 0 ] );
                     return offset;
                 }).then( function( offset ) {
-                    capture( api, 'image/png', initial_camera, 0, 1047, 1920, 1080, offset );
+                    let mimetype_list = document.getElementById( 'mimetype-enum' );
+                    capture( api, mimetype_list.value, initial_camera, 0, 1047, 1920, 1080, offset );
                 });
             });
         });
 
-        document.getElementById( 'sandbox' ).addEventListener( 'click', sentinel );
+        document.getElementById( 'sandbox' ).addEventListener( 'click', function() {
+            return;
+        });
 
     }
 
