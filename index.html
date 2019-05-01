@@ -60,10 +60,10 @@
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
-    var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup (1944.485)
-    // var uid = '31a9a4ae69834c42a4869d0610f32515'; // lion headrest (2017.15)
-    var acc_id = '1944.485'; // Wade cup
-    // var acc_id = '2017.15'; // lion headrest
+    // var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup (1944.485)
+    var uid = '31a9a4ae69834c42a4869d0610f32515'; // lion headrest (2017.15)
+    // var acc_id = '1944.485'; // Wade cup
+    var acc_id = '2017.15'; // lion headrest
     var client = new Sketchfab( '1.5.0', fabview );
 
     var onSuccess = function( api ) {
@@ -80,33 +80,32 @@
         });
 
         document.getElementById( 'spin' ).addEventListener( 'click', function() {
-            api.getCameraLookAt( function( err, camera ) {
+            api.getCameraLookAt( function( err, initial_camera ) {
                 var total_frames = 1047;
-                var initial_camera = camera;
 
-                for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
-                    let cam_promise = turntable( initial_camera, frame_index, total_frames );
-
-                    cam_promise.then( function( new_camera ) {
-                        setTimeout( function() {
-                            return api.lookat( new_camera.position, new_camera.target, 0 );
-                        }, frame_index * 70 );
-                    });
-                }
+                turntable( initial_camera, 0, 1 ).then( function( new_camera ) {
+                    let offset = Math.atan2( initial_camera.position[ 1 ] - new_camera.target[ 1 ], initial_camera.position[ 0 ] - new_camera.target[ 0 ] );
+                    return offset;
+                }).then( function( offset ) {
+                    for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
+                        turntable( initial_camera, frame_index, total_frames, offset ).then( function( new_camera ) {
+                            setTimeout( function() {
+                                return api.lookat( new_camera.position, new_camera.target, 0 );
+                            }, frame_index * 70 );
+                        });
+                    }
+                });
             });
         });
 
         document.getElementById( 'record' ).addEventListener( 'click', function() {
             // get screenshot parameters: resolution, frame count, total frames, mimetype
-            api.getCameraLookAt( function( err, camera ) {
-                let cam_promise = turntable( camera, 0, 1 );
-                cam_promise.then( function( new_camera ) {
-                    camera = new_camera
-                    return lookat_wrapper( api, camera.position, camera.target, 0.0 );
-                }).then( function() {
-                    setTimeout( function() {
-                        capture( api, 'image/jpeg', camera, 0, 1047 );
-                    }, 100 );
+            api.getCameraLookAt( function( err, initial_camera ) {
+                turntable( initial_camera, 0, 1 ).then( function( new_camera ) {
+                    let offset = Math.atan2( initial_camera.position[ 1 ] - new_camera.target[ 1 ], initial_camera.position[ 0 ] - new_camera.target[ 0 ] );
+                    return offset;
+                }).then( function( offset ) {
+                    capture( api, 'image/png', initial_camera, 0, 1047, 1920, 1080, offset );
                 });
             });
         });
