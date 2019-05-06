@@ -3,10 +3,7 @@ function sentinel() {
     return;
 }
 
-// CAREFUL --- img_warehouse is a global variable for storing blobs; only reference in capture()
-var img_warehouse = [];
-
-function capture( sketchfab_api, img_type = 'image/png', initial_camera, frame_index, total_frames = 1047, width = 1920, height = 1080, offset = 0.0 ) {
+function capture( sketchfab_api, accession, img_type, initial_camera, frame_index, total_frames, width, height, offset, img_warehouse ) {
 
     // base case: zip all img blobs stored in img_warehouse[] and save to .ZIP file
     if ( frame_index === total_frames ) {
@@ -24,19 +21,23 @@ function capture( sketchfab_api, img_type = 'image/png', initial_camera, frame_i
                 label = '0' + label;
             }
 
-            if ( img_type === 'image/png' ) {
-                zip.file( acc_id + '_' + label + '.png', img_warehouse[ img_index ] );
+            switch ( img_type ) {
+                case 'image/png':
+                    zip.file( accession + '_' + label + '.png', img_warehouse[ img_index ] );
+                    break;
+                case 'image/jpeg':
+                    zip.file( accession + '_' + label + '.jpg', img_warehouse[ img_index ] );
+                    break;
             }
-            else if ( img_type === 'image/jpeg' ) {
-                zip.file( acc_id + '_' + label + '.jpg', img_warehouse[ img_index ] );
-            }
+
             console.log( 'zipped image ' + ( img_index + 1 ) + ' of ' + img_warehouse.length );
             if ( img_index === ( img_warehouse.length - 1 )) {
-                zip.generateAsync({ type:'blob' }).then( function( blob ) {
+                console.log( 'saving to .ZIP file' );
+                zip.generateAsync({ type:'blob', compression:"STORE" }).then( function( blob ) {
                     console.log( 'finished compressing all image blobs' );
-                    saveAs( blob, acc_id + '.zip' );
+                    saveAs( blob, accession + '.zip' );
                 }).then( function() {
-                    img_warehouse = [];
+                    img_warehouse.length = 0;
                 });
             }
         }
@@ -54,7 +55,7 @@ function capture( sketchfab_api, img_type = 'image/png', initial_camera, frame_i
         img_warehouse.push( img_blob );
         console.log( 'called push at frame ' + frame_index );
     }).then( function() {
-        capture( sketchfab_api, img_type, initial_camera, frame_index + 1, total_frames, width, height, offset );
+        capture( sketchfab_api, accession, img_type, initial_camera, frame_index + 1, total_frames, width, height, offset, img_warehouse );
     });
 }
 

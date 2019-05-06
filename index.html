@@ -31,6 +31,7 @@
     <iframe src="" id="api-frame" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen="true"></iframe>
 </div>
 <div class="dashboard" id="dashboard">
+    <button id="activate">Start viewer</button>
     <button id="screenshot">Preview snapshot</button>
     <button id="spin">Spin</button>
     <button id="record">Capture</button>
@@ -45,6 +46,24 @@
             </select>
         </div>
     </div>
+
+    <div class="field">
+        <label class="field-label">Accession ID</label>
+        <div class="field-control">
+            <select id="accession-enum">
+                <option value="1915.338.2">1915.388.2 | Deity earring</option>
+                <option value="1916.1521">1916.1521 | Breastplate from hussar's cuirass</option>
+                <option value="1944.485">1944.485 | Wade Cup</option>
+                <option value="1955.166">1955.166 | Mother and Child</option>
+                <option value="1970.16">1970.16 | Neck Amphora</option>
+                <option value="1974.16">1974.16 | Kottabos Element of a Dancing Satyr</option>
+                <option value="1980.16">1980.16 | Piggy Bank</option>
+                <option value="1983.28">1983.28 | Jar</option>
+                <option value="1990.180">1990.180 | Vessel with Ballplayer</option>
+                <option value="2017.15">2017.15 | Headrest with Three Lions</option>
+            </select>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
@@ -52,13 +71,9 @@
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
-    // var uid = '4d4dfba6506d40b09b7eb34c642afab7'; // Wade cup (1944.485)
-    // var uid = '31a9a4ae69834c42a4869d0610f32515'; // lion headrest (2017.15)
-    // var acc_id = '1944.485'; // Wade cup
-    // var acc_id = '2017.15'; // lion headrest
+    let acc_id = document.getElementById( 'accession-enum' );
+    let uid = ''
 
-    var uid = '5a452eaf4d5d44c1a7a23f7f53d81284'; // mother-and-appendChild
-    var acc_id = '1955.166'
     var client = new Sketchfab( '1.5.0', fabview );
 
     var onSuccess = function( api ) {
@@ -101,38 +116,86 @@
                     return offset;
                 }).then( function( offset ) {
                     let mimetype_list = document.getElementById( 'mimetype-enum' );
-                    capture( api, mimetype_list.value, initial_camera, 0, 1047, 1920, 1080, offset );
+                    let img_warehouse = new Array( 1047 );
+                    capture( api, acc_id.value, mimetype_list.value, initial_camera, 0, 1047, 1920, 1080, offset, img_warehouse );
                 });
             });
         });
 
         document.getElementById( 'sandbox' ).addEventListener( 'click', function() {
-            return;
-        });
+            api.getCameraLookAt( function( err, initial_camera ) {
+                var total_frames = 1047;
 
+                turntable( initial_camera, 0, 1 ).then( function( new_camera ) {
+                    let offset = Math.atan2( initial_camera.position[ 1 ] - new_camera.target[ 1 ], initial_camera.position[ 0 ] - new_camera.target[ 0 ] );
+                    return offset;
+                }).then( function( offset ) {
+                    turntable( initial_camera, 875, total_frames, offset ).then( function( new_camera) {
+                        return api.lookat( new_camera.position, new_camera.target, 0 );
+                    });
+                });
+            });
+        });
     }
 
-    client.init( uid, {
-        success: onSuccess,
-        error: function onError() {
-            console.log( 'Viewer error' );
-        },
-        autostart: 1,
-        annotations_visible: 0,
-        camera: 0,
-        preload: 1,
-        double_click: 0,
-        ui_fullscreen: 0,
-        ui_stop: 0,
-        ui_help: 0,
-        ui_settings: 0, // settings for rendering, navigation & textures
-        ui_inspector: 0,
-        ui_vr: 0,
-        ui_annotations: 0,
-        ui_animations: 0,
-        ui_infos: 0,
-        transparent: 0 // set transparent background
-    } );
+    document.getElementById( 'activate' ).addEventListener( 'click', function() {
+        switch ( acc_id.value ) {
+            case '1915.338.2': // deity earring
+                uid = '27834259e0c944af8647b9db1f1f851d';
+                break;
+            case '1916.1521': // breastplate from hussars cuirass
+                uid = '3056e857cf244a3fb651f9d07a66c5a9';
+                break;
+            case '1944.485': // Wade cup
+                uid = '4d4dfba6506d40b09b7eb34c642afab7';
+                break;
+            case '1955.166': // mother and child
+                uid = '5a452eaf4d5d44c1a7a23f7f53d81284';
+                break;
+            case '1970.16': // neck amphora
+                uid = '0bb2525bdd734bf69d5a7b2b051928ad';
+                break;
+            case '1974.16': // Kottabos
+                uid = '34d0cda5076c4c52a8ce2eecd2d192c6';
+                break;
+            case '1980.16': // piggy bank
+                uid = '14bfd106baf14d62aebf6eafbe25b3c3';
+                break;
+            case '1983.28': // jar
+                uid = '1f0a28465735411fb4292e63debf3ffa';
+                break;
+            case '1990.180': // vessel with Ballplayer
+                uid = 'c1ddf562b5bf4d5ba5304ddf2b567cd2';
+                break;
+            case '2017.15': // headrest with three lions
+                uid = '31a9a4ae69834c42a4869d0610f32515';
+                break;
+            default:
+                uid = '';
+        }
+
+        client.init( uid, {
+            success: onSuccess,
+            error: function onError() {
+                console.log( 'Viewer error' );
+            },
+            autostart: 1,
+            annotations_visible: 0,
+            camera: 0,
+            preload: 1,
+            double_click: 0,
+            ui_fullscreen: 0,
+            ui_stop: 0,
+            ui_help: 0,
+            ui_settings: 0, // settings for rendering, navigation & textures
+            ui_inspector: 0,
+            ui_vr: 0,
+            ui_annotations: 0,
+            ui_animations: 0,
+            ui_infos: 0,
+            transparent: 0 // set transparent background
+        });
+    });
 
 </script>
 </body>
