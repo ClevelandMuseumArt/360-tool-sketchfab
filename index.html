@@ -12,8 +12,8 @@
             z-index: 1;
             top: 0;
             left: 0;
-            width: 70%;
-            height: 100%;
+            width: 1920px;
+            height: 1080px;
         }
         .dashboard {
             position: absolute;
@@ -23,12 +23,24 @@
             width: 25%;
             height: 100%;
         }
+        .overlay {
+            position: absolute;
+            z-index: 2;
+            top: 0;
+            left: 0;
+            width: 1920px;
+            height: 1080px;
+            opacity: 0.4;
+        }
     </style>
 </head>
 
 <body>
 <div class="fab_frame">
     <iframe src="" id="api-frame" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen="true"></iframe>
+</div>
+<div class="overlay">
+    <img src="assets/test.png" />
 </div>
 <div class="dashboard" id="dashboard">
     <button id="activate">Start viewer</button>
