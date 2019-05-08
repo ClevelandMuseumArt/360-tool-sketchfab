@@ -2,8 +2,9 @@ function sentinel() {
     console.log( 'sentinel activated' );
     return;
 }
+let img_warehouse = [];
 
-function capture( sketchfab_api, accession, img_type, initial_camera, frame_index, total_frames, width, height, offset, img_warehouse ) {
+function capture( sketchfab_api, accession, img_type, initial_camera, frame_index, total_frames, width, height, offset ) {
 
     // base case: zip all img blobs stored in img_warehouse[] and save to .ZIP file
     if ( frame_index === total_frames ) {
@@ -55,7 +56,7 @@ function capture( sketchfab_api, accession, img_type, initial_camera, frame_inde
         img_warehouse.push( img_blob );
         console.log( 'called push at frame ' + frame_index );
     }).then( function() {
-        capture( sketchfab_api, accession, img_type, initial_camera, frame_index + 1, total_frames, width, height, offset, img_warehouse );
+        capture( sketchfab_api, accession, img_type, initial_camera, frame_index + 1, total_frames, width, height, offset );
     });
 }
 
