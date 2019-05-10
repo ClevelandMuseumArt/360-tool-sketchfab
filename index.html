@@ -6,87 +6,7 @@
 
     <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.5.0.js"></script>
 
-    <style type="text/css">
-        .fab_frame iframe {
-            position: absolute;
-            z-index: -1;
-            top: 0;
-            left: 0;
-            width: 1920px;
-            height: 1080px;
-        }
-        .dashboard {
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            overflow-x: hidden;
-            padding-top: 60px;
-            transition: 0.5s;
-            background-color: #005cb9;
-        }
-        .dashboard a {
-            padding: 8px 8px 8px 32px;
-            text-decoration: none;
-            font-size: 25px;
-            color: #57c1e8;
-            display: block;
-            transition: 0.3s;
-        }
-        .dashboard a:hover {
-            color: #a4a6a7;
-        }
-        .dashboard .closebtn {
-            position: absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
-            margin-left: 50px;
-        }
-        .field-label {
-            color: white;
-        }
-        #openbtn {
-            position: fixed;
-            top: 20px;
-            font-size: 20px;
-            cursor: pointer;
-            background-color: #005cb9;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            z-index: 3;
-        }
-        #openbtn:hover {
-            background-color: #57c1e8;
-        }
-        #main {
-            transition: margin-left .5s;
-            padding: 20px;
-        }
-        .blueprint {
-            border: 2px solid;
-            padding: 20px;
-            width: 400px;
-            resize: both;
-            overflow: auto;
-        }
-        .blueprint img {
-            max-height: 100%;
-            max-width: 100%;
-            position: absolute;
-            resize: both;
-            overflow: auto;
-        }
-        .overlay {
-            position: absolute;
-            z-index: 0;
-            height: 1080px;
-            opacity: 0.4;
-        }
-    </style>
+    <link rel="stylesheet" href="style/fabview.css">
 </head>
 
 <body>
@@ -97,6 +17,7 @@
         <button id="spin">Spin</button>
         <button id="record">Capture</button>
         <button id="sandbox">Sandbox</button>
+        <button id="stencil">Toggle stencilbox</button>
 
         <div class="field">
             <label class="field-label">Filetype</label>
@@ -137,14 +58,17 @@
         </div>
     </div>
 
-    <!-- <div class="blueprint">
+    <div id="tracer">
+        <div id="tracerheader">Click here to move</div>
         <img src="assets/test.png" />
-    </div> -->
+    </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
 <script type="text/javascript" src="js/jszip.min.js"></script>
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
+
+    dragElement( document.getElementById( 'tracer' ));
 
     function openNav() {
         document.getElementById( 'sidebar' ).style.width = "250px";
@@ -158,11 +82,59 @@
         document.getElementById( 'openbtn' ).style.opacity = "1";
     }
 
+    function dragElement( elt ) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if ( document.getElementById( elt.id + "header" )) {
+            document.getElementById( elt.id + "header" ).onmousedown = dragMouseDown;
+        } else {
+            elt.onmousedown = dragMouseDown;
+        }
+
+        function dragMouseDown( e ) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag( e ) {
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            elt.style.top = ( elt.offsetTop - pos2 ) + "px";
+            elt.style.left = ( elt.offsetLeft - pos1 ) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
     var fabview = document.getElementById( 'api-frame' );
     let acc_id = document.getElementById( 'accession-enum' );
     let uid = ''
 
     var client = new Sketchfab( '1.5.0', fabview );
+
+    document.getElementById( 'stencil' ).addEventListener( 'click', function() {
+        console.log( 'clicked stencil button' );
+        var tracer = document.getElementById( 'tracer' );
+        console.log( tracer.style.display );
+        switch ( tracer.style.visibility ){
+            case 'visible':
+                tracer.style.visibility = 'hidden';
+                break;
+            case 'hidden':
+                tracer.style.visibility = 'visible';
+                break;
+        }
+    });
 
     var onSuccess = function( api ) {
         api.start();

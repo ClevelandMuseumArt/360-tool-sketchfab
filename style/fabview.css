@@ -1,0 +1,82 @@
+.fab_frame iframe {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+}
+.dashboard {
+    position: fixed;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    overflow-x: hidden;
+    padding-top: 60px;
+    transition: 0.5s;
+    background-color: #005cb9;
+}
+.dashboard a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #57c1e8;
+    display: block;
+    transition: 0.3s;
+}
+.dashboard a:hover {
+    color: #a4a6a7;
+}
+.dashboard .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+.field-label {
+    color: white;
+}
+#openbtn {
+    position: fixed;
+    top: 20px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #005cb9;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    z-index: 3;
+}
+#openbtn:hover {
+    background-color: #57c1e8;
+}
+#main {
+    transition: margin-left .5s;
+    padding: 20px;
+}
+#tracer {
+    position: absolute;
+    z-index: 2;
+    border: 2px solid;
+    border-color: #005cb9;
+    height: 400px;
+    width: 400px;
+    resize: both;
+    overflow: hidden;
+    visibility: visible;
+}
+#tracer img {
+    /* height: 100%; */
+    max-height: 100%;
+    /* object-fit: cover; */
+}
+#tracerheader {
+    padding:10px;
+    cursor: move;
+    z-index: 4;
+    background-color: #005cb9;
+    color: white;
+}
