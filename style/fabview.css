@@ -17,6 +17,7 @@
     padding-top: 60px;
     transition: 0.5s;
     background-color: #005cb9;
+    color: white;
 }
 .dashboard a {
     padding: 8px 8px 8px 32px;
@@ -36,10 +37,7 @@
     font-size: 36px;
     margin-left: 50px;
 }
-.field-label {
-    color: white;
-}
-#openbtn {
+.hamburger {
     position: fixed;
     top: 20px;
     font-size: 20px;
@@ -50,14 +48,14 @@
     border: none;
     z-index: 3;
 }
-#openbtn:hover {
+.hamburger:hover {
     background-color: #57c1e8;
 }
-#main {
+.main {
     transition: margin-left .5s;
     padding: 20px;
 }
-#tracer {
+.stencil {
     position: absolute;
     z-index: 2;
     border: 2px solid;
@@ -66,16 +64,25 @@
     width: 400px;
     resize: both;
     overflow: hidden;
-    visibility: visible;
+    opacity: 1;
+    display: inline-block;
 }
-#tracer img {
-    /* height: 100%; */
+.stencil img {
+    padding: 0px 0px 100px;
     max-height: 100%;
-    /* object-fit: cover; */
+    box-sizing: border-box;
 }
-#tracerheader {
-    padding:10px;
+.stencilgrab {
+    padding: 10px;
     cursor: move;
+    z-index: 4;
+    border: 1px solid;
+    border-color: #57c1e8;
+    background-color: #005cb9;
+    color: white;
+}
+.stencilbar {
+    padding: 5px;
     z-index: 4;
     background-color: #005cb9;
     color: white;

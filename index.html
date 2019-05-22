@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>360 tool</title>
+    <title>360 tool | The Cleveland Museum of Art</title>
 
     <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.5.0.js"></script>
 
@@ -12,129 +12,68 @@
 <body>
     <div class="dashboard" id="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <br />
         <button id="activate">Start viewer</button>
+        <br />
         <button id="screenshot">Preview snapshot</button>
         <button id="spin">Spin</button>
+        <br />
         <button id="record">Capture</button>
+        <br />
         <button id="sandbox">Sandbox</button>
-        <button id="stencil">Toggle stencilbox</button>
-
-        <div class="field">
-            <label class="field-label">Filetype</label>
-            <div class="field-control">
-                <select id="mimetype-enum">
-                    <option value="image/png">PNG</option>
-                    <option value="image/jpeg">JPG</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="field-label">Accession ID</label>
-            <div class="field-control">
-                <select id="accession-enum">
-                    <option value="1915.338.2">1915.388.2 | Deity earring</option>
-                    <option value="1916.1521">1916.1521 | Breastplate from hussar's cuirass</option>
-                    <option value="1944.485">1944.485 | Wade Cup</option>
-                    <option value="1955.166">1955.166 | Mother and Child</option>
-                    <option value="1970.16">1970.16 | Neck Amphora</option>
-                    <option value="1974.16">1974.16 | Kottabos Element of a Dancing Satyr</option>
-                    <option value="1980.16">1980.16 | Piggy Bank</option>
-                    <option value="1983.28">1983.28 | Jar</option>
-                    <option value="1990.180">1990.180 | Vessel with Ballplayer</option>
-                    <option value="2017.15">2017.15 | Headrest with Three Lions</option>
-                </select>
-            </div>
-        </div>
+        <br />
+        <label>Filetype</label>
+        <select id="mimetype-enum">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPG</option>
+        </select>
+        <br />
+        <label>Accession ID</label>
+        <select id="accession-enum">
+            <option value="1915.338.2">1915.388.2 | Deity earring</option>
+            <option value="1916.1521">1916.1521 | Breastplate from hussar's cuirass</option>
+            <option value="1944.485">1944.485 | Wade Cup</option>
+            <option value="1955.166">1955.166 | Mother and Child</option>
+            <option value="1970.16">1970.16 | Neck Amphora</option>
+            <option value="1974.16">1974.16 | Kottabos Element of a Dancing Satyr</option>
+            <option value="1980.16">1980.16 | Piggy Bank</option>
+            <option value="1983.28">1983.28 | Jar</option>
+            <option value="1990.180">1990.180 | Vessel with Ballplayer</option>
+            <option value="2011.110">2011.110 | Indian Combat</option>
+            <option value="2017.15">2017.15 | Headrest with Three Lions</option>
+        </select>
     </div>
 
-    <div id="main">
-        <div class="sticky">
-            <button id="openbtn" onclick="openNav()">&#9776; Dashboard</button>
-        </div>
+    <div class="main" id="main">
+        <button class="hamburger" id="openbtn" onclick="openNav()">&#9776; Dashboard</button>
 
         <div class="fab_frame">
             <iframe src="" id="api-frame" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen="true"></iframe>
         </div>
     </div>
 
-    <div id="tracer">
-        <div id="tracerheader">Click here to move</div>
-        <img src="assets/test.png" />
+    <div class="stencil" id="tracer">
+        <div class="stencilgrab" id="tracerheader">Click here to drag</div>
+        <div class="stencilbar">
+            <label>Opacity</label>
+            <input id="opacity-slider" type="range" min="0" max="1" step="0.05" value="1">
+            <output id="opacity-indicator">1</output>
+        </div>
+        <img id="stencil-img" src="assets/1916.1521.png" />
     </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
 <script type="text/javascript" src="js/jszip.min.js"></script>
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
+<script type="text/javascript" src="js/navbtn.js"></script>
+<script type="text/javascript" src="js/dragelt.js"></script>
+<script type="text/javascript" src="js/stencilOpacity.js"></script>
 <script type="text/javascript">
-
-    dragElement( document.getElementById( 'tracer' ));
-
-    function openNav() {
-        document.getElementById( 'sidebar' ).style.width = "250px";
-        document.getElementById( 'main' ).style.marginLeft = "250px";
-        document.getElementById( 'openbtn' ).style.opacity = "0";
-    }
-
-    function closeNav() {
-        document.getElementById( 'sidebar' ).style.width = "0";
-        document.getElementById( 'main' ).style.marginLeft = "0";
-        document.getElementById( 'openbtn' ).style.opacity = "1";
-    }
-
-    function dragElement( elt ) {
-        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        if ( document.getElementById( elt.id + "header" )) {
-            document.getElementById( elt.id + "header" ).onmousedown = dragMouseDown;
-        } else {
-            elt.onmousedown = dragMouseDown;
-        }
-
-        function dragMouseDown( e ) {
-            e = e || window.event;
-            e.preventDefault();
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
-        }
-
-        function elementDrag( e ) {
-            e = e || window.event;
-            e.preventDefault();
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            elt.style.top = ( elt.offsetTop - pos2 ) + "px";
-            elt.style.left = ( elt.offsetLeft - pos1 ) + "px";
-        }
-
-        function closeDragElement() {
-            document.onmouseup = null;
-            document.onmousemove = null;
-        }
-    }
-
     var fabview = document.getElementById( 'api-frame' );
     let acc_id = document.getElementById( 'accession-enum' );
     let uid = ''
 
     var client = new Sketchfab( '1.5.0', fabview );
-
-    document.getElementById( 'stencil' ).addEventListener( 'click', function() {
-        console.log( 'clicked stencil button' );
-        var tracer = document.getElementById( 'tracer' );
-        console.log( tracer.style.display );
-        switch ( tracer.style.visibility ){
-            case 'visible':
-                tracer.style.visibility = 'hidden';
-                break;
-            case 'hidden':
-                tracer.style.visibility = 'visible';
-                break;
-        }
-    });
 
     var onSuccess = function( api ) {
         api.start();
@@ -176,8 +115,8 @@
                     return offset;
                 }).then( function( offset ) {
                     let mimetype_list = document.getElementById( 'mimetype-enum' );
-                    let img_warehouse = new Array( 1047 );
-                    capture( api, acc_id.value, mimetype_list.value, initial_camera, 0, 1047, 1920, 1080, offset );
+                    let img_warehouse = new Array( 750 );
+                    capture( api, acc_id.value, mimetype_list.value, initial_camera, 0, 750, 1920, 1080, offset );
                 });
             });
         });
@@ -227,6 +166,9 @@
             case '1990.180': // vessel with Ballplayer
                 uid = 'c1ddf562b5bf4d5ba5304ddf2b567cd2';
                 break;
+            case '2011.110': // indian combat
+                uid = '7723feae34eb441fa9f74dd330b7b7d5';
+                break;
             case '2017.15': // headrest with three lions
                 uid = '31a9a4ae69834c42a4869d0610f32515';
                 break;
@@ -247,7 +189,7 @@
             ui_fullscreen: 0,
             ui_stop: 0,
             ui_help: 0,
-            ui_settings: 0, // settings for rendering, navigation & textures
+            ui_settings: 1, // settings for rendering, navigation & textures
             ui_inspector: 0,
             ui_vr: 0,
             ui_annotations: 0,
