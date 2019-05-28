@@ -13,21 +13,9 @@
     <div class="dashboard" id="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <br />
+        <br />
+        <br />
         <button id="activate">Start viewer</button>
-        <br />
-        <button id="screenshot">Preview snapshot</button>
-        <button id="spin">Spin</button>
-        <br />
-        <button id="record">Capture</button>
-        <br />
-        <button id="sandbox">Sandbox</button>
-        <br />
-        <label>Filetype</label>
-        <select id="mimetype-enum">
-            <option value="image/png">PNG</option>
-            <option value="image/jpeg">JPG</option>
-        </select>
-        <br />
         <label>Accession ID</label>
         <select id="accession-enum">
             <option value="1915.338.2">1915.388.2 | Deity earring</option>
@@ -43,6 +31,22 @@
             <option value="2011.110">2011.110 | Indian Combat</option>
             <option value="2017.15">2017.15 | Headrest with Three Lions</option>
         </select>
+        <button id="screenshot">Preview snapshot</button>
+        <button id="spin">Spin</button>
+        <button id="record">Capture</button>
+        <button id="sandbox">Sandbox</button>
+        <label>Resolution</label>
+        <select id="resolution-enum">
+            <option value="FHD">1920x1080</option>
+            <option value="4K">3840x2160</option>
+        </select>
+        <label>Filetype</label>
+        <select id="mimetype-enum">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPG</option>
+        </select>
+        <button id="export">Export camera position</button>
+        <button id="import">Import camera position</button>
     </div>
 
     <div class="main" id="main">
@@ -60,7 +64,7 @@
             <input id="opacity-slider" type="range" min="0" max="1" step="0.05" value="1">
             <output id="opacity-indicator">1</output>
         </div>
-        <img id="stencil-img" src="assets/2017.15.png" />
+        <img id="stencil-img" src="assets/generated/1990.180_stencil.png" />
     </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
@@ -72,6 +76,7 @@
 <script type="text/javascript">
     var fabview = document.getElementById( 'api-frame' );
     let acc_id = document.getElementById( 'accession-enum' );
+    let resolution = document.getElementById( 'resolution-enum' );
     let uid = ''
 
     var client = new Sketchfab( '1.5.0', fabview );
@@ -79,8 +84,29 @@
     var onSuccess = function( api ) {
         api.start();
 
+        document.getElementById( 'export' ).addEventListener( 'click', function() {
+            api.getCameraLookAt( function( err, camera) {
+                var win = window.open( '', 'camera-export' );
+                win.document.write( '<pre>' + JSON.stringify( camera, null, 4 ) + '</pre>');
+            });
+        });
+
+        document.getElementById( 'import' ).addEventListener( 'click', function() {
+            var camera;
+            try {
+                camera = JSON.parse( window.prompt());
+            } catch( e ) {
+                alert( 'Camera not valid' );
+                return;
+            }
+
+            if ( camera && camera.position && camera.target ) {
+                api.lookat( camera.position, camera.target, 0.0 );
+            }
+        });
+
         document.getElementById( 'screenshot' ).addEventListener( 'click', function() {
-            let preview = screengrab( api, 'image/png', 120, 120 );
+            let preview = screengrab( api, 'image/png', 3840, 2160 );
 
             preview.then( function( image ) {
                 var thumbnail = document.createElement( 'img' );
@@ -117,7 +143,13 @@
                 }).then( function( offset ) {
                     let mimetype_list = document.getElementById( 'mimetype-enum' );
                     let img_warehouse = new Array( 750 );
-                    capture( api, acc_id.value, mimetype_list.value, initial_camera, 0, 750, 1920, 1080, offset );
+                    switch ( resolution.value ) {
+                        case '4K': // 3480x2160
+                        capture( api, acc_id.value, mimetype_list.value, initial_camera, 0, 1, 3840, 2160, offset );
+                            break;
+                        default:
+                        capture( api, acc_id.value, mimetype_list.value, initial_camera, 0, 750, 1920, 1080, offset );
+                    }
                 });
             });
         });
@@ -156,7 +188,7 @@
                 uid = '0bb2525bdd734bf69d5a7b2b051928ad';
                 break;
             case '1974.15': // microscope
-                uid = 'a137ba95735c41ce948887d564ac887c';
+                uid = 'dfb9849f5af049f6a945de6e7e0001d9';
                 break;
             case '1974.16': // Kottabos
                 uid = '34d0cda5076c4c52a8ce2eecd2d192c6';
