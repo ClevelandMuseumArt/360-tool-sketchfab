@@ -25,9 +25,11 @@
             <option value="1970.16">1970.16 | Neck Amphora</option>
             <option value="1974.15">1974.15 | Microscope</option>
             <option value="1974.16">1974.16 | Kottabos Element of a Dancing Satyr</option>
+            <option value="1978.43">1978.43 | Hand Mirror</option>
             <option value="1980.16">1980.16 | Piggy Bank</option>
             <option value="1983.28">1983.28 | Jar</option>
             <option value="1990.180">1990.180 | Vessel with Ballplayer</option>
+            <option value="2004.85">2004.85 | Staff of office</option>
             <option value="2011.110">2011.110 | Indian Combat</option>
             <option value="2017.15">2017.15 | Headrest with Three Lions</option>
         </select>
@@ -64,7 +66,7 @@
             <input id="opacity-slider" type="range" min="0" max="1" step="0.05" value="1">
             <output id="opacity-indicator">1</output>
         </div>
-        <img id="stencil-img" src="assets/generated/1990.180_stencil.png" />
+        <img id="stencil-img" src="assets/2004.85.png" />
     </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
@@ -202,6 +204,12 @@
             case '1990.180': // vessel with Ballplayer
                 uid = 'c1ddf562b5bf4d5ba5304ddf2b567cd2';
                 break;
+            case '1978.43': // Hand mirror
+                uid = '332773ee1cfc4d4babe9a9f0c2bb385b';
+                break;
+            case '2004.85': // staff of office
+                uid = '54584c2569dd49798a49f1987fed4317';
+                break;
             case '2011.110': // indian combat
                 uid = '7723feae34eb441fa9f74dd330b7b7d5';
                 break;
@@ -231,7 +239,7 @@
             ui_annotations: 0,
             ui_animations: 0,
             ui_infos: 0,
-            transparent: 0 // set transparent background
+            transparent: 1 // set transparent background
         });
     });
 
