@@ -120,7 +120,7 @@
 
         document.getElementById( 'spin' ).addEventListener( 'click', function() {
             api.getCameraLookAt( function( err, initial_camera ) {
-                var total_frames = 1047;
+                var total_frames = 400;
 
                 turntable( initial_camera, 0, 1 ).then( function( new_camera ) {
                     let offset = Math.atan2( initial_camera.position[ 1 ] - new_camera.target[ 1 ], initial_camera.position[ 0 ] - new_camera.target[ 0 ] );
@@ -243,7 +243,7 @@
             ui_annotations: 0,
             ui_animations: 0,
             ui_infos: 0,
-            transparent: 1 // set transparent background
+            transparent: 0 // set transparent background
         });
     });
 
