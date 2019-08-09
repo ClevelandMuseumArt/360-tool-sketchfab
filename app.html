@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>360 tool | The Cleveland Museum of Art</title>
+
+    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.5.0.js"></script>
+
+    <link rel="stylesheet" href="style/fabview.css">
+</head>
+
+<body>
+    <div class="dashboard" id="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <br />
+        <br />
+        <br />
+        
+        <button id="spin">Spin</button>
+    </div>
+
+    <div class="main" id="main">
+        <button class="hamburger" id="openbtn" onclick="openNav()">&#9776; Dashboard</button>
+
+        <div class="fab_frame">
+            <iframe src="" id="api-frame" allow="autoplay; fullscreen" allowfullscreen webkitallowfullscreen="true"></iframe>
+        </div>
+    </div>
+
+<script type="text/javascript" src="js/navbtn.js"></script>
+<script type="text/javascript" src="js/sentinel.js"></script>
+<script type="text/javascript" src="js/jszip.min.js"></script>
+<script type="text/javascript" src="js/FileSaver.min.js"></script>
+<script type="text/javascript">
+    var fabview = document.getElementById( 'api-frame' );
+    var uid = 'dfb9849f5af049f6a945de6e7e0001d9'
+
+    var client = new Sketchfab( '1.5.0', fabview );
+
+    var onSuccess = function( api ) {
+        api.start();
+
+        document.getElementById( 'spin' ).addEventListener( 'click', function() {
+            api.getCameraLookAt( function( err, initial_camera ) {
+                var total_frames = 400;
+
+                turntable( initial_camera, 0, 1 ).then( function( new_camera ) {
+                    let offset = Math.atan2( initial_camera.position[ 1 ] - new_camera.target[ 1 ], initial_camera.position[ 0 ] - new_camera.target[ 0 ] );
+                    return offset;
+                }).then( function( offset ) {
+                    for ( let frame_index = 0; frame_index < total_frames; frame_index++ ) {
+                        turntable( initial_camera, frame_index, total_frames, offset ).then( function( new_camera ) {
+                            setTimeout( function() {
+                                return api.lookat( new_camera.position, new_camera.target, 0 );
+                            }, frame_index * 70 );
+                        });
+                    }
+                });
+            });
+        });
+
+    }
+
+    client.init( uid, {
+        success: onSuccess,
+        error: function onError() {
+            console.log( 'Viewer error' );
+        },
+        autostart: 1,
+        annotations_visible: 0,
+        camera: 0,
+        preload: 1,
+        double_click: 0,
+        ui_fullscreen: 0,
+        ui_stop: 0,
+        ui_help: 0,
+        ui_settings: 1, // settings for rendering, navigation & textures
+        ui_inspector: 0,
+        ui_vr: 0,
+        ui_annotations: 0,
+        ui_animations: 0,
+        ui_infos: 0,
+        transparent: 0 // set transparent background
+    });
+
+</script>
+</body>
+</html>
