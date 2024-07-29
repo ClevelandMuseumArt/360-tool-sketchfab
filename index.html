@@ -17,6 +17,7 @@
         <br />
         <button id="activate">Start viewer</button>
         <label>Accession ID</label>
+        <!-- UPDATE 1: add your artwork accession number and title HERE -->
         <select id="accession-enum">
             <option value="1915.338.2">1915.388.2 | Deity earring</option>
             <option value="1916.1521">1916.1521 | Breastplate from hussar's cuirass</option>
@@ -29,6 +30,7 @@
             <option value="1980.16">1980.16 | Piggy Bank</option>
             <option value="1983.28">1983.28 | Jar</option>
             <option value="1990.180">1990.180 | Vessel with Ballplayer</option>
+            <option value="1991.165">1991.165 | Headdress (Ẹpa) called Atófòjọ́wò</option>
             <option value="1991.45">1991.45 | Table</option>
             <option value="2004.85">2004.85 | Staff of office</option>
             <option value="2011.110">2011.110 | Indian Combat</option>
@@ -67,7 +69,7 @@
             <input id="opacity-slider" type="range" min="0" max="1" step="0.05" value="1">
             <output id="opacity-indicator">1</output>
         </div>
-        <img id="stencil-img" src="assets/1991.45.png" />
+        <img id="stencil-img" src="" />
     </div>
 
 <script type="text/javascript" src="js/sentinel.js"></script>
@@ -173,7 +175,11 @@
         });
     }
 
+    /*
+     * UPDATE 2: Add your accession number and Sketchfab ID
+     */
     document.getElementById( 'activate' ).addEventListener( 'click', function() {
+        console.log(acc_id.value);
         switch ( acc_id.value ) {
             case '1915.338.2': // deity earring
                 uid = '27834259e0c944af8647b9db1f1f851d';
@@ -204,6 +210,9 @@
                 break;
             case '1990.180': // vessel with Ballplayer
                 uid = 'c1ddf562b5bf4d5ba5304ddf2b567cd2';
+                break;
+            case '1991.165': // Headdress (Ẹpa) called Atófòjọ́wò    
+                uid = 'f8645e86189e4b66b19639f09660af5a';
                 break;
             case '1991.45': // Table
                 uid = '4ab2488154f74a589549010410800248';
